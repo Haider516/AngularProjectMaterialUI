@@ -1,16 +1,18 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, Injectable } from '@angular/core';
+import { Component, Injectable, Input, input } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { BehaviorSubject } from 'rxjs';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatError, MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { TabsComponent } from '../tabs/tabs.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
+import { ButtonComponent } from '../button/button.component';
+import { FormsModule } from '@angular/forms';
 
 
 export class TodoItemNode {
@@ -24,6 +26,7 @@ export class TodoItemFlatNode {
   level!: number;
   expandable!: boolean;
   hasChild!: boolean; // new property
+  updating!: boolean;
 
 }
 
@@ -187,14 +190,22 @@ export class ChecklistDatabase {
   }
 
 
-  deleteItem(parentNode: TodoItemNode, node: TodoItemNode) {
-    const index = parentNode.children.indexOf(node);
+  deleteItem(parentNode: TodoItemNode | undefined, node: TodoItemNode) {
     debugger
-    if (index !== -1) {
-      parentNode.children.splice(index, 1);
-      debugger
-      this.dataChange.next(this.data);
+    if (parentNode === undefined) {
+      this.data.shift();
     }
+    else {
+      const index = parentNode!.children.indexOf(node);
+      debugger
+      if (index !== -1) {
+        parentNode!.children.splice(index, 1);
+        debugger
+      }
+    }
+
+    this.dataChange.next(this.data);
+
   }
 
   // detectingchange() {
@@ -206,16 +217,11 @@ export class ChecklistDatabase {
 
   //to update the item value 
 
-  updateItemNode(parentNode: TodoItemNode, node: TodoItemNode, updateditem: string) {
-    const index = parentNode.children.indexOf(node);
-    debugger
-    if (index !== -1) {
-      console.log(parentNode.children[index].item = updateditem);
-
-      debugger
-      this.dataChange.next(this.data);
-    }
+  updateItemNode(node: TodoItemNode, updateditem: string) {
+    node.item = updateditem;
+    this.dataChange.next(this.data);
   }
+
 }
 
 /**
@@ -224,8 +230,8 @@ export class ChecklistDatabase {
 @Component({
   selector: 'app-tree-with-check-box',
   standalone: true,
-  imports: [MatIconModule, MatTreeModule, MatIcon, MatCheckbox, MatLabel, MatFormField, MatInput,
-    TabsComponent, MatCard, MatCardContent, CommonModule, MatCard, MatCardContent, MatCardHeader, MatCardModule
+  imports: [MatIconModule,CommonModule, MatTreeModule, MatIcon, MatCheckbox, MatLabel,MatError, MatFormField, MatInput,ButtonComponent,
+    TabsComponent, MatCard, MatCardContent, CommonModule, MatCard, MatCardContent, MatCardHeader, MatCardModule,FormsModule
   ],
   templateUrl: './tree-with-check-box.component.html',
   styleUrl: './tree-with-check-box.component.css',
@@ -237,9 +243,8 @@ export class TreeWithCheckBoxComponent {
    *  This helps us finding the nested node to be modified */
 
   private num: number = 0;
-
   private tempNode!: TodoItemNode;
-  private tempNodeparent!: TodoItemNode;
+  private tempNodeparent!: TodoItemNode | undefined;
 
   flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
 
@@ -283,9 +288,12 @@ export class TreeWithCheckBoxComponent {
 
   hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '';
 
-  isEvenIndex = (_: number, node: TodoItemFlatNode) => this.treeControl.dataNodes.indexOf(node) % 2 === 0;
+  // isEvenIndex = (_: number, node: TodoItemFlatNode) => this.treeControl.dataNodes.indexOf(node) % 2 === 0;
 
   istrue = () => this.num === 1 ? true : false;
+
+  //
+  toupdate = (node: TodoItemFlatNode) => node.updating = true;
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
    */
@@ -301,9 +309,11 @@ export class TreeWithCheckBoxComponent {
     //it was previously flatNode.expandable = !!node.children?.length;
     // causing an  issue for every  item to be expandable 
     flatNode.expandable = !!node.children?.length; // edit this to true to make it always expandable
-    flatNode.hasChild = !!node.children?.length;  // add this line. this property will help 
-    // us to hide the expand button in a node
-     debugger
+    // add this line. this property will help 
+    //  to hide the expand button in a node
+    flatNode.hasChild = !!node.children?.length;
+    flatNode.updating = false;
+    debugger
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
     //debugger
@@ -396,7 +406,7 @@ export class TreeWithCheckBoxComponent {
   /** Select the category so we can insert the new item. */
   addNewItem(node: TodoItemFlatNode) {
     const parentNode = this.flatNodeMap.get(node);
-    
+
     debugger
     this._database.insertItem(parentNode!, '');
     this.treeControl.expand(node);
@@ -406,17 +416,16 @@ export class TreeWithCheckBoxComponent {
   /** Save the node to database */
   saveNode(node: TodoItemFlatNode, itemValue: string) {
     const nestedNode = this.flatNodeMap.get(node);
-//get parent node 
+    //get parent node 
     const parentNode = this.getParentNode(node);
     const parentNode1 = this.flatNodeMap.get(parentNode!);
-debugger
+    debugger
     if (parentNode1?.item === itemValue) {
       console.log("not poosible ");
-
-    } else{
+    } else {
       this._database.updateItem(nestedNode!, itemValue);
     }
-    
+
   }
 
   deleteNode(node: TodoItemFlatNode) {
@@ -442,6 +451,7 @@ debugger
     const parentNode = this.getParentNode(node);
     const parentNode1 = this.flatNodeMap.get(parentNode!);
     const nodenew = this.flatNodeMap.get(node)
+    debugger
     this.num += 1;
     this.tempNode = nodenew!;
     this.tempNodeparent = parentNode1!;
@@ -452,12 +462,34 @@ debugger
   }
 
   //this works when i click  the  save button forthe updated field
-  getupdatedValue(item: string) {
-    console.log(item);
-    this.num -= 1;
-
-    this._database.updateItemNode(this.tempNodeparent, this.tempNode, item);
+  getupdatedValue(node: TodoItemFlatNode, item: string) {
+    debugger
+    // console.log(item);
+    // const parentNode = this.getParentNode(node);
+    // const parentNode1 = this.flatNodeMap.get(parentNode!);
+    const nodenew = this.flatNodeMap.get(node)
+    // nodenew?.item != item;
+    //   console.log(nodenew);
+    this.tempNodeparent = undefined;
+    // this.dataSource.data = [...this.dataSource.data];
+    //  this.num -= 1;
+    this._database.updateItemNode(nodenew!, item);
   }
+
+  updateNodeextra(node: TodoItemFlatNode) {
+    this.toupdate(node);
+    debugger
+
+    // debugger
+    // this.num += 1;
+    // this.tempNode = nodenew!;
+    // this.tempNodeparent = parentNode1!;
+    // console.log("Node:", node.);
+    // this._database.detectingchange();
+
+    //  this._database.updateItem(parentNode1!);
+  }
+
 
 }
 

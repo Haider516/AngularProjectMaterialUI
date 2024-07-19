@@ -4,11 +4,12 @@ import { TreeWithCheckBoxComponent } from '../tree-with-check-box/tree-with-chec
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { TabsComponent } from '../tabs/tabs.component';
+import { DividerComponent } from '../divider/divider.component';
 
 @Component({
   selector: 'app-nestedtree-page',
   standalone: true,
-  imports: [NestedTreeComponent,TreeWithCheckBoxComponent,TabsComponent],
+  imports: [NestedTreeComponent,TreeWithCheckBoxComponent,TabsComponent,DividerComponent],
   templateUrl: './nestedtree-page.component.html',
   styleUrl: './nestedtree-page.component.css'
 })
