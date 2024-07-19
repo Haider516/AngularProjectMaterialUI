@@ -1,0 +1,59 @@
+<h1 mat-dialog-title>{{ data.type === 'UPDATE' ? 'UPDATE DATA' : 'ADD DATA' }} </h1>
+<app-divider></app-divider>
+<div mat-dialog-content>
+
+
+  <div mat-dialog-content>
+    <form #form="ngForm" (ngSubmit)="submitForm()">
+      <div class="example-container">
+        <mat-form-field hintLabel="Max 10 characters" appearance="fill">
+          <mat-label>Enter Name</mat-label>
+          <input matInput [(ngModel)]="model.name" name="name" maxlength="10" placeholder="Ex. Nougat" required>
+          <mat-hint align="end">{{ model.name.length }}/10</mat-hint>
+        </mat-form-field>
+
+        <app-divider></app-divider>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Select Amount</mat-label>
+          <mat-select [(ngModel)]="model.amount" name="amount" required>
+            <mat-option value="10000">10000</mat-option>
+            <mat-option value="9001010">2000</mat-option>
+            <mat-option value="3000">3000</mat-option>
+            <mat-option value="4000">4000</mat-option>
+          </mat-select>
+          <mat-hint align="end">Select an amount</mat-hint>
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+
+
+
+  <!-- (click)="submitForm()" -->
+  <div mat-dialog-actions>
+    <app-button text={{data.type}} mat-button (click)="submitForm()"></app-button>
+    <app-button text="Cancel" color="" mat-button mat-dialog-close>Cancel</app-button>
+
+  </div>
+
+
+
+
+
+
+  <!--   
+<h1 mat-dialog-title>Dialog with elements</h1>
+<div mat-dialog-content>
+
+  
+  <app-data-form [data]="data" (onaddTask)="submitForm($event)"></app-data-form>
+</div>
+
+
+<div mat-dialog-actions>
+  <app-button text="Update" mat-button (click)="submitForm($event)"></app-button>
+  <app-button text="Cancel" color="" mat-button mat-dialog-close>Cancel</app-button>
+
+</div>
+  -->

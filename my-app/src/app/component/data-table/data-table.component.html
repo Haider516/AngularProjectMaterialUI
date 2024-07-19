@@ -1,0 +1,59 @@
+
+
+
+<div class="mat-elevation-z2">
+  <!-- <mat-form-field>
+    <mat-label>Filter</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
+  </mat-form-field> -->
+
+  <table mat-table class="full-width-table" matSort aria-label="Elements">
+    <!-- Id Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+      <td mat-cell *matCellDef="let row">{{row.id}}</td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let row">{{row.name}}</td>
+    </ng-container>
+
+
+    <!-- Amount Column -->
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+      <td mat-cell *matCellDef="let row">{{row.amount}}</td>
+    </ng-container>
+
+    <!-- actions Column -->
+    <ng-container matColumnDef="actions">
+
+      <th mat-header-cell *matHeaderCellDef >Actions</th>
+
+      <td mat-cell *matCellDef="let row; let i = index">
+
+        <!-- <button (click)="editRow(row)">Edit</button>
+        <button (click)="deleteRow(row)">Delete</button> -->
+
+        <dialog-elements-example [text]="'Update'" [type]="'UPDATE'" [indexNumber]="row.id"></dialog-elements-example>
+        <app-dialog-delete [indexNumber]="row.id"></app-dialog-delete>
+        <!-- <dialog-elements-example [text]="'Update'" [type]="'UPDATE'" [indexNumber]="i"></dialog-elements-example>
+
+        <app-dialog-delete [indexNumber]="i"></app-dialog-delete> -->
+      </td>
+
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator #paginator [length]="dataSource.data.length" [pageIndex]="0" [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 20]" aria-label="Select page">
+  </mat-paginator>
+
+</div>

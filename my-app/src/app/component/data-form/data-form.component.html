@@ -1,0 +1,39 @@
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+  <div class="example-container">
+
+    <mat-form-field hintLabel="Max 10 characters" appearance="fill">
+      <mat-label>Enter Name</mat-label>
+      <input matInput [(ngModel)]="model.name" name="name" maxlength="10" placeholder="Ex. Nougat" required>
+      <mat-hint align="end">{{ model.name.length }}/10</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Select Amount</mat-label>
+      <mat-select [(ngModel)]="model.amount" name="amount" required>
+        <mat-option value="10000">10000</mat-option>
+        <mat-option value="2000">2000</mat-option>
+        <mat-option value="3000">3000</mat-option>
+        <mat-option value="4000">4000</mat-option>
+      </mat-select>
+      <mat-hint align="end">Select an amount</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate placeholder="Start date">
+        <input matEndDate placeholder="End date">
+      </mat-date-range-input>
+      <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+
+  </div>
+</form>
+
+
+<!-- <mat-form-field appearance="fill">
+    <mat-label>Textarea</mat-label>
+    <textarea matInput></textarea>
+  </mat-form-field> -->
